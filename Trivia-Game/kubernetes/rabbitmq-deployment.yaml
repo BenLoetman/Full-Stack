@@ -1,0 +1,58 @@
+# RabbitMQ Service.
+apiVersion: v1
+kind: Service
+metadata:
+  # Service name and namespace.
+  name: rabbitmq
+  namespace: app1
+spec:
+  # ClusterIP not available outside this cluster. 
+  selector:
+    app: rabbitmq
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5672
+      targetPort: 5672
+
+---
+# Create RabbitMQ StatefulSet.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: app1
+spec:
+  # Use rabbitmq service.
+  serviceName: "rabbitmq"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  # Label for cluster.
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      # Image Name.
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:management
+        env:
+        # RabbitMQ User Secret.
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: general-secret
+              key: rabbitmq-user
+        # RabbitMQ Password Secret.
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: general-secret
+              key: rabbitmq-password
+        # Ports to be used. 
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672

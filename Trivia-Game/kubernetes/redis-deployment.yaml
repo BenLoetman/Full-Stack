@@ -1,0 +1,38 @@
+# Redis Service.
+apiVersion: v1
+kind: Service
+metadata:
+  # Service name and namespace.
+  name: redis-service
+  namespace: app1
+spec:
+  # Serviced port.
+  ports:
+    - port: 6379
+  selector:
+    app: redis
+
+---
+# StatefuSet for Redis.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: app1
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  # Use redis-service.
+  serviceName: "redis-service"
+  replicas: 1
+  template:
+    # Label for cluster.
+    metadata:
+      labels:
+        app: redis
+    spec:
+      # Image Name.
+      containers:
+        - name: redis
+          image: redis/redis-stack:latest

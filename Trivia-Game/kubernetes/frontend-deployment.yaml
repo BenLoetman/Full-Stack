@@ -1,0 +1,54 @@
+# Frontend Service.
+apiVersion: v1
+kind: Service
+metadata:
+  # Service name and namespace.
+  name: frontend-service
+  namespace: app1
+spec:
+  # NodePort able to access on IP on Kubernetes server port 31000. 
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 3000  
+      targetPort: 3000
+      nodePort: 31000 
+
+---
+# Frontend Deployment. 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: app1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  # Label for cluster.
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      # Image Name.
+      containers:
+      - name: frontend
+        image: redsox18/projects:app1-frontend
+        imagePullPolicy: Always
+        env:
+          # RabbitMQ Quere Secret.
+          - name: QUEUE
+            valueFrom:
+              secretKeyRef:
+                name: general-secret
+                key: queue
+        # NextJS open on port 3000.
+        ports:
+          - containerPort: 3000 
+      # Docker Secret.
+      imagePullSecrets:
+      - name: docker-hub-secret

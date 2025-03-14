@@ -1,0 +1,72 @@
+# Cronjob to run app1-producer every day a 2 am.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  # Name and namespace declaration.
+  name: producer-cronjob
+  namespace: app1
+spec:
+  # CronJob 
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: producer
+            # Image Name.
+            image: redsox18/projects:app1-producer
+            imagePullPolicy: IfNotPresent
+            env:
+              # RabbitMQ Host Secret.
+              - name: RABBITMQ_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: rabbitmq-host
+              # RabbitMQ Port Secret.
+              - name: RABBITMQ_PORT
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: rabbitmq-port
+              # RabbitMQ User Secret.
+              - name: RABBITMQ_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: rabbitmq-user
+              # RabbitMQ Password Secret.
+              - name: RABBITMQ_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: rabbitmq-password
+              # MySQL Host Secret.
+              - name: MYSQL_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: mysql-host
+              # MySQL User Secret.
+              - name: MYSQL_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: mysql-user
+              # MySQL Password Secret.
+              - name: MYSQL_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: mysql-password
+              # MySQL Database Secret.
+              - name: MYSQL_DATABASE
+                valueFrom:
+                  secretKeyRef:
+                    name: general-secret
+                    key: mysql-db
+          restartPolicy: OnFailure
+          # Docker Secret.
+          imagePullSecrets:
+            - name: docker-hub-secret

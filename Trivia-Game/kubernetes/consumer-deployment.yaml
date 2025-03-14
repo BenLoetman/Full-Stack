@@ -1,0 +1,85 @@
+# Consumer Service.
+apiVersion: v1
+kind: Service
+metadata:
+  # Service name and namespace.
+  name: consumer-app
+  namespace: app1
+spec:
+  # ClusterIP not available outside this cluster. 
+  selector:
+    app: consumer-app
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+# Consumer Deployment.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-app
+  namespace: app1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer-app
+  template:
+    # Label for cluster.
+    metadata:
+      labels:
+        app: consumer-app
+    spec:
+      # Image Name.
+      containers:
+        - name: consumer-app
+          image: redsox18/projects:app1-consumer
+          imagePullPolicy: Always
+          env:
+          # RabbitMQ Host Secret.
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: general-secret
+                  key: rabbitmq-host
+            # RabbitMQ Port Secret.
+            - name: RABBITMQ_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: general-secret
+                  key: rabbitmq-port
+            # RabbitMQ User Secret.
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: general-secret
+                  key: rabbitmq-user
+            # RabbitMQ Password Secret.
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: general-secret
+                  key: rabbitmq-password
+            # RabbitMQ Quere Secret.
+            - name: RABBITMQ_QUERE
+              valueFrom:
+                secretKeyRef:
+                  name: general-secret
+                  key: quere
+          ports:
+            - containerPort: 80
+          # Resources for VM.
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      restartPolicy: Always
+      # Docker Secret.
+      imagePullSecrets:
+        - name: docker-hub-secret

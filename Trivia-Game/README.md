@@ -8,7 +8,7 @@
 
 
 ### System Description
-Trivia game application that is made using Next.js, Redis, Python, RabbitMQ, Docker, Kubernetes, and SQL. The database stores multiple categories, each one is put into it's own queue in RabbitMQ then the consumer and pulls the specified queue and inserts the data into Redis where the frontend uses it. 
+Trivia game application that is made using Docker, Kubernetes, SQL, Python, RabbitMQ, Redis, and Next.js. The database stores multiple categories, each one is put into its own queue in RabbitMQ. Then the RabbitMQ consumer pulls the specified queue and inserts the data into Redis where the frontend uses it.
 
 
 
